@@ -11,16 +11,35 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+
+private val BlackDarkColorScheme = darkColorScheme(
+    primary = Black80,
+    secondary = Black80,
+    tertiary = Black80,
 )
 
-private val LightColorScheme = lightColorScheme(
+private val BlackLightColorScheme = lightColorScheme(
+    primary = Black40,
+    secondary = Black40,
+    tertiary = Black40,
+)
+
+private val RedDarkColorScheme = darkColorScheme(
+    primary = Red80,
+    secondary = Red80,
+    tertiary = Red80,
+)
+
+private val RedLightColorScheme = lightColorScheme(
+    primary = Red40,
+    secondary = Red40,
+    tertiary = Red40,
+)
+
+private val PurpleLightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
-    tertiary = Pink40
+    tertiary = Pink40,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -32,6 +51,24 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1C1B1F),
     */
 )
+
+private val PurpleDarkColorScheme = darkColorScheme(
+    primary = Purple80,
+    secondary = PurpleGrey80,
+    tertiary = Pink80,
+
+    /* Other default colors to override
+    background = Color(0xFFFFFBFE),
+    surface = Color(0xFFFFFBFE),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF1C1B1F),
+    onSurface = Color(0xFF1C1B1F),
+    */
+)
+
+
 
 @Composable
 fun E2E4Theme(
@@ -46,8 +83,8 @@ fun E2E4Theme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> PurpleDarkColorScheme
+        else -> PurpleLightColorScheme
     }
 
     MaterialTheme(
