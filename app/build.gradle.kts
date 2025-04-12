@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -40,7 +42,8 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":domain"))
+    implementation(project(":data"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -57,6 +60,21 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.navigation.compose)
-
     implementation(libs.androidx.constraintlayout.compose.v111)
+
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+
+//    implementation(libs.orbit.core)
+//// or, if on Android:
+//    implementation(libs.orbit.viewmodel)
+//// If using Jetpack Compose include
+//    implementation(libs.orbit.compose)
+//
+//// Tests
+//    testImplementation(libs.orbit.test)
+}
+
+kapt {
+    correctErrorTypes = true
 }

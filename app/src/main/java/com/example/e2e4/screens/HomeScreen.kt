@@ -13,20 +13,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.navigation.NavController
+import com.example.domain.models.Player
+import com.example.domain.usecase.GetPlayerUseCase
+import com.example.data.repository.PlayerRepositoryImpl
+import com.example.data.storage.InMemoryUserStorage
+import com.example.domain.models.GetOrCreatePlayerParam
 
 @Composable
-fun HomeScreen(navController: NavController?) {
+fun HomeScreen(getPlayerUseCase: GetPlayerUseCase) {
+    var player = Player("", 0, 0)
+
     Scaffold { innerPadding ->
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            val (title, textField, button) = createRefs()
+            val (title, textField, button, info) = createRefs()
+
 
             Text(
                 text = "Добро пожаловать в E2E4!",
@@ -38,10 +46,10 @@ fun HomeScreen(navController: NavController?) {
                 }
             )
 
-            var text by rememberSaveable { mutableStateOf("") }
+            var name by rememberSaveable { mutableStateOf("") }
             TextField(
-                value = text,
-                onValueChange = { text = it },
+                value = name,
+                onValueChange = { name = it },
                 label = { Text("Пользователь") },
                 modifier = Modifier.constrainAs(textField) {
                     top.linkTo(title.bottom, margin = 16.dp)
@@ -51,15 +59,35 @@ fun HomeScreen(navController: NavController?) {
             )
 
             Button(
-                onClick = { navController?.navigate("game") },
+                onClick = {
+                    if (name.isNotEmpty()) {
+                        player = getPlayerUseCase.execute(
+                            GetOrCreatePlayerParam(
+                                name
+                            )
+                        )
+                        name = ""
+                    }
+                },
                 modifier = Modifier.constrainAs(button) {
                     top.linkTo(textField.bottom, margin = 16.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
             ) {
-                Text("Начать игру")
+                Text("Войти")
             }
+
+            Text(
+                text = if (player.name.isNotEmpty()) "${player.name}\nПобеды: ${player.wins}  Поражения: ${player.losses}" else "",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.constrainAs(info) {
+                    top.linkTo(button.bottom, margin = 32.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+            )
         }
     }
 }
@@ -67,5 +95,5 @@ fun HomeScreen(navController: NavController?) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewHomeScreen() {
-    HomeScreen(navController = null)
+    HomeScreen(GetPlayerUseCase(PlayerRepositoryImpl(InMemoryUserStorage())))
 }

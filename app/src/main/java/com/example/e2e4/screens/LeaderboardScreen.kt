@@ -18,20 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
-data class Player(val name: String, val wins: Int, val losses: Int)
+import com.example.data.repository.PlayerRepositoryImpl
+import com.example.data.storage.InMemoryUserStorage
+import com.example.domain.usecase.GetAllPlayersUseCase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LeaderboardScreen() {
-    val players = listOf(
-        Player("kolzuk", 10, 2),
-        Player("OneBeatTrue", 8, 4),
-        Player("DimaTivator", 7, 5),
-        Player("random_1", 12, 3),
-        Player("random_2", 6, 6)
-    )
-
+fun LeaderboardScreen(getAllPlayersUseCase: GetAllPlayersUseCase) {
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Рейтинг") }) }
     ) { innerPadding ->
@@ -45,7 +38,7 @@ fun LeaderboardScreen() {
                         Text("Поражения", modifier = Modifier.width(100.dp))
                     }
                 }
-                itemsIndexed(players) { index, player ->
+                itemsIndexed(getAllPlayersUseCase.execute().sortedWith(compareBy({-it.wins}, {it.losses}, {it.name}))) { index, player ->
                     val backgroundColor = if (index % 2 == 0) Color.White else Color.LightGray
                     Row(
                         modifier = Modifier.fillMaxWidth().background(backgroundColor).padding(8.dp)
@@ -64,5 +57,11 @@ fun LeaderboardScreen() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewLeaderboardScreen() {
-    LeaderboardScreen()
+    LeaderboardScreen(
+        GetAllPlayersUseCase(
+            PlayerRepositoryImpl(
+                InMemoryUserStorage()
+            )
+        )
+    )
 }

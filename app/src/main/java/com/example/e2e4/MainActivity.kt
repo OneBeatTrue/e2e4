@@ -9,58 +9,69 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.*
+import com.example.domain.usecase.GetPlayerUseCase
+import com.example.data.repository.PlayerRepositoryImpl
+import com.example.data.storage.InMemoryUserStorage
+import com.example.domain.usecase.GetAllPlayersUseCase
 import com.example.e2e4.screens.AboutScreen
 import com.example.e2e4.screens.GameScreen
 import com.example.e2e4.screens.HomeScreen
 import com.example.e2e4.screens.LeaderboardScreen
 import com.example.e2e4.screens.SettingsScreen
 
+//@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val userStorage = InMemoryUserStorage()
+    private val playerRepository = PlayerRepositoryImpl(userStorage)
+    private val getPlayerUseCase = GetPlayerUseCase(playerRepository)
+    private val getAllPlayersUseCase =
+        GetAllPlayersUseCase(playerRepository)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ChessApp()
         }
     }
-}
 
-@Composable
-fun ChessApp() {
-    val navController = rememberNavController()
-    Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "home",
-            Modifier.padding(innerPadding)
-        ) {
-            composable("home") { HomeScreen(navController) }
-            composable("game") { GameScreen() }
-            composable("leaderboard") { LeaderboardScreen() }
-            composable("settings") { SettingsScreen() }
-            composable("about") { AboutScreen() }
+    @Composable
+    fun ChessApp() {
+        val navController = rememberNavController()
+        Scaffold(
+            bottomBar = { BottomNavigationBar(navController) }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = "home",
+                Modifier.padding(innerPadding)
+            ) {
+                composable("home") { HomeScreen(getPlayerUseCase) }
+                composable("game") { GameScreen() }
+                composable("leaderboard") { LeaderboardScreen(getAllPlayersUseCase) }
+                composable("settings") { SettingsScreen() }
+                composable("about") { AboutScreen() }
+            }
         }
     }
-}
 
-@Composable
-fun BottomNavigationBar(navController: NavController) {
-    NavigationBar {
-        val items = listOf(
-            "home" to "Главная",
-            "game" to "Игра",
-            "leaderboard" to "Рейтинг",
-            "settings" to "Настройки",
-            "about" to "О нас"
-        )
-        items.forEach { (route, title) ->
-            NavigationBarItem(
-                selected = false,
-                onClick = { navController.navigate(route) },
-                label = { Text(title) },
-                icon = {}
+    @Composable
+    fun BottomNavigationBar(navController: NavController) {
+        NavigationBar {
+            val items = listOf(
+                "home" to "Главная",
+                "game" to "Игра",
+                "leaderboard" to "Рейтинг",
+                "settings" to "Настройки",
+                "about" to "О нас"
             )
+            items.forEach { (route, title) ->
+                NavigationBarItem(
+                    selected = false,
+                    onClick = { navController.navigate(route) },
+                    label = { Text(title) },
+                    icon = {}
+                )
+            }
         }
     }
 }
