@@ -1,4 +1,4 @@
-package com.example.e2e4.ui.theme
+package com.example.e2e4.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

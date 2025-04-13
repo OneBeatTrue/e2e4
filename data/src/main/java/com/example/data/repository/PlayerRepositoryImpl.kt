@@ -4,12 +4,13 @@ import com.example.domain.models.Player
 import com.example.data.storage.UserStorage
 import com.example.data.storage.models.User
 import com.example.data.storage.models.UserIdentifier
-import com.example.domain.models.GetOrCreatePlayerParam
+import com.example.domain.models.CreatePlayerParam
+import com.example.domain.models.GetPlayerParam
 import com.example.domain.repository.PlayerRepository
 
 
 class PlayerRepositoryImpl(private val userStorage: UserStorage) : PlayerRepository {
-    override fun getPlayer(param: GetOrCreatePlayerParam): Player? {
+    override fun getPlayer(param: GetPlayerParam): Player? {
         val user = userStorage.get(UserIdentifier(param.name)) ?: return null
         return toDomain(user)
     }
@@ -18,7 +19,7 @@ class PlayerRepositoryImpl(private val userStorage: UserStorage) : PlayerReposit
         return userStorage.getAll().map { toDomain(it) };
     }
 
-    override fun createPlayer(param: GetOrCreatePlayerParam): Player {
+    override fun createPlayer(param: CreatePlayerParam): Player {
         return toDomain(userStorage.create(UserIdentifier(param.name)))
     }
 

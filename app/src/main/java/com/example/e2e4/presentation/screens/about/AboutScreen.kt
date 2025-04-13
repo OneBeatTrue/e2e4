@@ -1,4 +1,4 @@
-package com.example.e2e4.screens
+package com.example.e2e4.presentation.screens.about
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column

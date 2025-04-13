@@ -1,4 +1,4 @@
-package com.example.e2e4.screens
+package com.example.e2e4.presentation.screens.leaderboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -14,17 +14,23 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.repository.PlayerRepositoryImpl
 import com.example.data.storage.InMemoryUserStorage
 import com.example.domain.usecase.GetAllPlayersUseCase
+import com.example.e2e4.presentation.screens.home.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LeaderboardScreen(getAllPlayersUseCase: GetAllPlayersUseCase) {
+fun LeaderboardScreen(viewModel: LeaderboardViewModel) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    viewModel.onCreate()
+
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Рейтинг") }) }
     ) { innerPadding ->
@@ -38,7 +44,7 @@ fun LeaderboardScreen(getAllPlayersUseCase: GetAllPlayersUseCase) {
                         Text("Поражения", modifier = Modifier.width(100.dp))
                     }
                 }
-                itemsIndexed(getAllPlayersUseCase.execute().sortedWith(compareBy({-it.wins}, {it.losses}, {it.name}))) { index, player ->
+                itemsIndexed(state.players) { index, player ->
                     val backgroundColor = if (index % 2 == 0) Color.White else Color.LightGray
                     Row(
                         modifier = Modifier.fillMaxWidth().background(backgroundColor).padding(8.dp)
@@ -54,14 +60,14 @@ fun LeaderboardScreen(getAllPlayersUseCase: GetAllPlayersUseCase) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewLeaderboardScreen() {
-    LeaderboardScreen(
-        GetAllPlayersUseCase(
-            PlayerRepositoryImpl(
-                InMemoryUserStorage()
-            )
-        )
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewLeaderboardScreen() {
+//    LeaderboardScreen(
+//        GetAllPlayersUseCase(
+//            PlayerRepositoryImpl(
+//                InMemoryUserStorage()
+//            )
+//        )
+//    )
+//}

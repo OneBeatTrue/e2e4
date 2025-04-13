@@ -1,4 +1,4 @@
-package com.example.e2e4.screens
+package com.example.e2e4.presentation.screens.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,15 +23,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.e2e4.R
+import com.example.e2e4.presentation.screens.home.HomeViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
-    var soundEnabled by rememberSaveable { mutableStateOf(true) }
+fun SettingsScreen(viewModel: SettingsViewModel) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
     val soundIcon = remember { derivedStateOf {
-        if (soundEnabled) R.drawable.baseline_volume_up_24 else R.drawable.baseline_volume_off_24
+        if (state.volume) R.drawable.baseline_volume_up_24 else R.drawable.baseline_volume_off_24
     } }
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Настройки") }) }
@@ -43,9 +46,9 @@ fun SettingsScreen() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Switch(
-                    checked = soundEnabled,
+                    checked = state.volume,
                     onCheckedChange = {
-                        soundEnabled = it
+                        viewModel.onIntent(SettingsIntent.SwitchVolume())
                     }
                 )
                 Icon(
@@ -57,9 +60,9 @@ fun SettingsScreen() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewSettingsScreen() {
-    SettingsScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewSettingsScreen() {
+//    SettingsScreen()
+//}
 

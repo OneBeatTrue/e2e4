@@ -30,11 +30,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
@@ -62,17 +62,20 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.constraintlayout.compose.v111)
 
+//    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+//    implementation(libs.androidx.lifecycle.livedata.ktx)
+
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 
-//    implementation(libs.orbit.core)
-//// or, if on Android:
-//    implementation(libs.orbit.viewmodel)
-//// If using Jetpack Compose include
-//    implementation(libs.orbit.compose)
-//
-//// Tests
-//    testImplementation(libs.orbit.test)
+    implementation(libs.orbit.core)
+// or, if on Android:
+    implementation(libs.orbit.viewmodel)
+// If using Jetpack Compose include
+    implementation(libs.orbit.compose)
+
+// Tests
+    testImplementation(libs.orbit.test)
 }
 
 kapt {

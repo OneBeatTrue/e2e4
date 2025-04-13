@@ -1,4 +1,4 @@
-package com.example.e2e4.ui.theme
+package com.example.e2e4.presentation.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
