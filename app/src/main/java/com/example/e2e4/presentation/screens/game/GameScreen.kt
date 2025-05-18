@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.e2e4.presentation.screens.home.HomeIntent
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -65,6 +67,22 @@ fun GameScreen(viewModel: GameViewModel) {
             ) {
                 ChessBoard(state = state, viewModel = viewModel)
             }
+            if (state.isFinished) {
+                Button(
+                    onClick = { viewModel.onIntent(GameIntent.Retry()) },
+                    modifier = Modifier.padding(innerPadding)
+                ) {
+                    Text("Заново")
+                }
+            }
+            else {
+                Button(
+                    onClick = { viewModel.onIntent(GameIntent.Resign()) },
+                    modifier = Modifier.padding(innerPadding)
+                ) {
+                    Text("Сдаться")
+                }
+            }
         }
     }
 }
@@ -78,9 +96,9 @@ fun ChessBoard(state: GameState, viewModel: GameViewModel) {
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .background(if (row == state.chosenRow && col == state.chosenCol) Color.Red else if ((row + col) % 2 == 0) Color.White else Color.Black)
+                            .background(if (row == state.chosenRow && col == state.chosenCol) Color(173, 214, 90) else if ((row + col) % 2 == 0) Color(194, 165, 143) else Color(87, 65, 48))
                             .clickable {
-                                viewModel.onIntent(GameIntent.Highlight(row, col))
+                                if (!state.isFinished) viewModel.onIntent(GameIntent.Highlight(row, col))
                             }
                     )
                 }

@@ -18,7 +18,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -105,7 +104,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
             }
 
             Text(
-                text = if (state.visible) "${state.name}\nПобеды: ${state.wins}  Поражения: ${state.losses}" else "",
+                text = if (state.isPlayerVisible) "${state.player.name}\nПобеды: ${state.player.wins}  Поражения: ${state.player.losses}" else "",
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.constrainAs(info) {

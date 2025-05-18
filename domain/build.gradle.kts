@@ -14,6 +14,10 @@ kotlin {
     }
 }
 
+dependencies {
+    implementation(libs.kotlinx.coroutines.core)
+}
+
 //dependencies {
 //    implementation(libs.hilt.android)
 //    kapt(libs.hilt.android.compiler)

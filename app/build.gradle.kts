@@ -61,6 +61,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.constraintlayout.compose.v111)
+    implementation(libs.kotlinx.coroutines.core)
 
 //    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 //    implementation(libs.androidx.lifecycle.livedata.ktx)

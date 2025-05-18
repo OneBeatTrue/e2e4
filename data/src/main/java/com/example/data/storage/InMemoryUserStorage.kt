@@ -28,7 +28,8 @@ class InMemoryUserStorage : UserStorage {
         return users[name]!!
     }
 
-    override fun save(user: User) {
+    override fun save(user: User): User {
         users[user.name] = user
+        return users[user.name]!!
     }
 }

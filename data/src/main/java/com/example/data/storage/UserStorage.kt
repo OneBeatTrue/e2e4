@@ -10,5 +10,5 @@ interface UserStorage {
 
     fun create(userIdentifier: UserIdentifier): User
 
-    fun save(user: User)
+    fun save(user: User): User
 }
