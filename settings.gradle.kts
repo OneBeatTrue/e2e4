@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "E2E4"
 include(":app")
+include(":database")
