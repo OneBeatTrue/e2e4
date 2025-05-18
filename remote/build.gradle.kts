@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.e2e4"
+    namespace = "com.example.e2e4.remote"
     compileSdk = 35
 
     defaultConfig {
@@ -35,11 +35,13 @@ android {
 }
 
 dependencies {
+    implementation(libs.ktor.client.logging)
     implementation(libs.hilt.android)
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.compiler)
-    implementation(libs.androidx.room.ktx)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
