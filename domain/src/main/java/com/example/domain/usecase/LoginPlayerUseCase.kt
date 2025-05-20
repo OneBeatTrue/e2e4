@@ -1,13 +1,12 @@
 package com.example.domain.usecase
 
-import com.example.domain.models.Player
-import com.example.domain.repository.PlayerRepository
+import com.example.domain.repository.GameRepository
 import com.example.domain.models.LoginPlayerParam
 
-class LoginPlayerUseCase(private val playerRepository: PlayerRepository) {
+class LoginPlayerUseCase(private val gameRepository: GameRepository) {
     fun execute(param: LoginPlayerParam) : Boolean {
-        val player = playerRepository.getPlayer(param)
-        if (player != null) playerRepository.loginPlayer(player)
-        return player != null
+        val player = gameRepository.getPlayer(param)
+        gameRepository.updateCurrentPlayer(player)
+        return !player.isEmpty()
     }
 }

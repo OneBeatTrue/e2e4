@@ -1,12 +1,12 @@
 package com.example.domain.usecase
 
+import com.example.domain.models.LoginPlayerParam
 import com.example.domain.models.RegisterPlayerParam
-import com.example.domain.models.Player
-import com.example.domain.repository.PlayerRepository
+import com.example.domain.repository.GameRepository
 
-class RegisterPlayerUseCase(private val playerRepository: PlayerRepository) {
+class RegisterPlayerUseCase(private val gameRepository: GameRepository) {
     fun execute(param: RegisterPlayerParam) {
-        val player = playerRepository.createPlayer(param)
-        playerRepository.loginPlayer(player)
+        val player = gameRepository.createPlayer(param)
+        gameRepository.updateCurrentPlayer(player)
     }
 }

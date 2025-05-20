@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.models.RegisterPlayerParam
 import com.example.domain.models.LoginPlayerParam
 import com.example.domain.models.Player
-import com.example.domain.usecase.GetCurrentPlayerFlowUseCase
+import com.example.domain.usecase.GetCurrentGameFlowUseCase
 import com.example.domain.usecase.RegisterPlayerUseCase
 import com.example.domain.usecase.LoginPlayerUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,15 +18,15 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val loginPlayerUseCase: LoginPlayerUseCase,
     private val registerPlayerUseCase: RegisterPlayerUseCase,
-    private val getCurrentPlayerFlowUseCase: GetCurrentPlayerFlowUseCase,
+    private val getCurrentGameFlowUseCase: GetCurrentGameFlowUseCase,
 ) : ContainerHost<HomeState, HomeSideEffect>, ViewModel() {
 
     override val container = container<HomeState, HomeSideEffect>(HomeState())
 
     init {
         viewModelScope.launch {
-            getCurrentPlayerFlowUseCase.execute().collect {
-                onIntent(HomeIntent.Update(it))
+            getCurrentGameFlowUseCase.execute().collect {
+                onIntent(HomeIntent.Update(it.player))
             }
         }
     }
@@ -40,7 +40,8 @@ class HomeViewModel @Inject constructor(
     private fun updatePlayer(player: Player) = intent {
         reduce {
             state.copy(
-                player = player
+                player = player,
+                isPlayerVisible = !player.isEmpty()
             )
         }
     }
@@ -49,18 +50,10 @@ class HomeViewModel @Inject constructor(
         val result = loginPlayerUseCase.execute(LoginPlayerParam(name))
         if (!result) {
             postSideEffect(HomeSideEffect.ShowNotification("Пользователь не найден"))
-            reduce { state.copy(isPlayerVisible = false) }
-        } else {
-            reduce {
-                state.copy(isPlayerVisible = true)
-            }
         }
     }
 
     private fun createPlayer(name: String) = intent {
         registerPlayerUseCase.execute(RegisterPlayerParam(name))
-        reduce {
-            state.copy(isPlayerVisible = true)
-        }
     }
 }
