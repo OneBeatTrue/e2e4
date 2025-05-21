@@ -3,6 +3,7 @@ package com.example.data.repository
 import com.example.data.storage.ChessApi
 import com.example.data.storage.models.ChessApiRequest
 import com.example.data.storage.models.ChessApiRequestBody
+import com.example.data.storage.models.ChessApiResponse
 import com.example.domain.models.Board
 import com.example.domain.models.Move
 import com.example.domain.models.SideColor
@@ -15,6 +16,14 @@ class ChessRepositoryImpl(private val chessApi: ChessApi) : ChessRepository {
         return convertFenToBoard(response.body.fen).copy(mate = SideColor.random()) // TODO Remove random mate
     }
 
+    override fun getStartField(color: SideColor): Board {
+        return when(color) {
+            SideColor.White -> Board.StartWhite
+            SideColor.Black -> Board.StartBlack
+            SideColor.None -> Board.StartBlack
+        }
+    }
+
     private fun formChessApiRequest(move: Move, board: Board) : ChessApiRequestBody {
         return ChessApiRequestBody(convertBoardToFen(board), convertMoveToUci(move))
     }
@@ -24,10 +33,18 @@ class ChessRepositoryImpl(private val chessApi: ChessApi) : ChessRepository {
     }
 
     private fun convertMoveToUci(move: Move) : String {
-        return move.from.row + move.from.column + move.to.row + move.to.column
+        return move.from.column + move.from.row + move.to.column + move.to.row
     }
 
-    private fun convertFenToBoard(fen: String) : Board {
+    private fun convertResponseToBoard(response: ChessApiResponse) : Board {
+        return Board.StartWhite
+    }
+
+    private fun convertFenToBoardSta(fen: String) : Board {
+        return Board.StartWhite
+    }
+
+    private fun convertMovesToMap(fen: String) : Board {
         return Board.StartWhite
     }
 }

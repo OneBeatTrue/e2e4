@@ -1,9 +1,9 @@
 package com.example.domain.models
 
 data class Board(
-    val board : Map<Int, Map<Int, String>> = mapOf(),
+    val board : Map<Cell, Piece> = emptyMap(),
     val color : SideColor = SideColor.White,
-    val possibleMoves : Map<Int, Map<Int, String>> = mapOf(),
+    val possibleMoves : Map<Cell, Collection<Cell>> = emptyMap(),
     val mate : SideColor = SideColor.None,
 ) {
     fun isFinished(): Boolean = (mate != SideColor.None)

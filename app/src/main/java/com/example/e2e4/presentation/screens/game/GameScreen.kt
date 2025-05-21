@@ -40,7 +40,10 @@ fun GameScreen(viewModel: GameViewModel) {
         viewModel.container.sideEffectFlow.collect { effect ->
             when (effect) {
                 is GameSideEffect.ShowNotification -> {
-                    snackbarHostState.showSnackbar(effect.message, duration = SnackbarDuration.Short)
+                    snackbarHostState.showSnackbar(
+                        effect.message,
+                        duration = SnackbarDuration.Short
+                    )
                 }
             }
         }
@@ -53,7 +56,9 @@ fun GameScreen(viewModel: GameViewModel) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             Box(
                 modifier = Modifier
@@ -63,15 +68,14 @@ fun GameScreen(viewModel: GameViewModel) {
             ) {
                 ChessBoard(state = state, viewModel = viewModel)
             }
-            if (state.board.isFinished()) {
+            if (state.isFinished) {
                 Button(
                     onClick = { viewModel.onIntent(GameIntent.Retry()) },
                     modifier = Modifier.padding(innerPadding)
                 ) {
                     Text("Заново")
                 }
-            }
-            else {
+            } else {
                 Button(
                     onClick = { viewModel.onIntent(GameIntent.Resign()) },
                     modifier = Modifier.padding(innerPadding)
@@ -92,9 +96,28 @@ fun ChessBoard(state: GameState, viewModel: GameViewModel) {
                     Box(
                         modifier = Modifier
                             .size(40.dp)
-                            .background(if (row == state.chosenRow && col == state.chosenCol) Color(173, 214, 90) else if ((row + col) % 2 == 0) Color(194, 165, 143) else Color(87, 65, 48))
+                            .background(
+                                if (row == state.chosenRow && col == state.chosenCol) Color(
+                                    123,
+                                    97,
+                                    255
+                                ) else if (state.moves[row] == col) Color(
+                                    123,
+                                    97,
+                                    255
+                                ) else if ((row + col) % 2 == 0) Color(232, 237, 249) else Color(
+                                    183,
+                                    192,
+                                    216
+                                )
+                            )
                             .clickable {
-                                if (!state.board.isFinished()) viewModel.onIntent(GameIntent.Choose(row, col))
+                                if (!state.isFinished) viewModel.onIntent(
+                                    GameIntent.Choose(
+                                        row,
+                                        col
+                                    )
+                                )
                             }
                     )
                 }
