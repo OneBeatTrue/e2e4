@@ -64,4 +64,5 @@ class GameRepositoryImpl(private val userStorage: UserStorage) : GameRepository 
     private fun fieldToFen(board: Board) : String {
         return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     }
+
 }
