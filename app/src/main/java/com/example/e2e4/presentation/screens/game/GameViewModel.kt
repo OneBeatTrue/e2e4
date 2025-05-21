@@ -6,11 +6,13 @@ import com.example.domain.models.Board
 import com.example.domain.models.Cell
 import com.example.domain.models.Move
 import com.example.domain.models.Piece
+import com.example.domain.models.PieceType
 import com.example.domain.models.SideColor
 import com.example.domain.usecase.GetCurrentGameFlowUseCase
 import com.example.domain.usecase.MakeMoveUseCase
 import com.example.domain.usecase.ResignUseCase
 import com.example.domain.usecase.RetryUseCase
+import com.example.e2e4.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
@@ -26,8 +28,6 @@ class GameViewModel @Inject constructor(
 ) : ContainerHost<GameState, GameSideEffect>, ViewModel() {
 
     override val container = container<GameState, GameSideEffect>(GameState())
-    private var possibleMoves : Map<Cell, Collection<Cell>> = emptyMap()
-    private var isWhite: Boolean = true
 
     init {
         viewModelScope.launch {
@@ -47,14 +47,14 @@ class GameViewModel @Inject constructor(
     private fun updateBoard(board: Board) = intent {
         if (!board.isFinished()) {
             reduce {
-                possibleMoves = board.possibleMoves
-                isWhite = (board.color == SideColor.White)
                 state.copy(
-                    pieces = convertBoardMap(board.board),
+                    pieces = convertBoardMap(board.board, (board.color == SideColor.White)),
                     chosenRow = -1,
                     chosenCol = -1,
                     moves = mapOf(),
-                    isFinished = board.isFinished()
+                    isFinished = board.isFinished(),
+                    possibleMoves = board.possibleMoves,
+                    isWhite = (board.color == SideColor.White)
                 )
             }
         } else {
@@ -63,7 +63,7 @@ class GameViewModel @Inject constructor(
             }
             reduce {
                 state.copy(
-                    pieces = convertBoardMap(board.board),
+                    pieces = convertBoardMap(board.board, (board.color == SideColor.White)),
                     chosenRow = -1,
                     chosenCol = -1,
                     moves = emptyMap(),
@@ -85,10 +85,10 @@ class GameViewModel @Inject constructor(
         if (!state.isFinished) {
             if (state.chosenRow != -1 && state.chosenCol != -1) {
                 val move = Move(
-                    convertIntsToCell(state.chosenRow, state.chosenCol),
-                    convertIntsToCell(row, col)
+                    convertIntsToCell(state.chosenRow, state.chosenCol, state.isWhite),
+                    convertIntsToCell(row, col, state.isWhite)
                 )
-                if (possibleMoves[move.from]?.contains(move.to) == true) makeMoveUseCase.execute(
+                if (state.possibleMoves[move.from]?.contains(move.to) == true) makeMoveUseCase.execute(
                     move
                 )
                 reduce { state.copy(chosenRow = -1, chosenCol = -1, moves = mapOf()) }
@@ -98,8 +98,9 @@ class GameViewModel @Inject constructor(
                         chosenRow = row,
                         chosenCol = col,
                         moves = extractMovesMap(
-                            possibleMoves,
-                            convertIntsToCell(row, col),
+                            state.possibleMoves,
+                            convertIntsToCell(row, col, state.isWhite),
+                            state.isWhite
                         )
                     )
                 }
@@ -108,14 +109,14 @@ class GameViewModel @Inject constructor(
     }
 
 
-    private fun convertIntsToCell(row: Int, col: Int): Cell {
+    private fun convertIntsToCell(row: Int, col: Int, isWhite: Boolean): Cell {
         return Cell(
             row = if (isWhite) "${8 - row}" else "${row + 1}",
             column = "${'a' + col}"
         )
     }
 
-    private fun convertCellToInts(cell: Cell): Pair<Int, Int> {
+    private fun convertCellToInts(cell: Cell, isWhite: Boolean): Pair<Int, Int> {
         val columnIndex = cell.column.lowercase().first() - 'a'
         val rowIndex = cell.row.toIntOrNull()?.let {
             when (isWhite) {
@@ -127,25 +128,46 @@ class GameViewModel @Inject constructor(
         return Pair(rowIndex, columnIndex)
     }
 
-    private fun convertPieceToPic(piece: Piece): String = "${piece.color.toString()}${piece.type.toString()}"
+    private fun convertPieceToPic(piece: Piece): Int = when (piece.color) {
+        SideColor.White -> when (piece.type) {
+            PieceType.Bishop -> R.drawable.whitebishop
+            PieceType.King -> R.drawable.whiteknight
+            PieceType.Knight -> R.drawable.whiteknight
+            PieceType.Pawn -> R.drawable.whitepawn
+            PieceType.Queen -> R.drawable.whitequeen
+            PieceType.Rook -> R.drawable.whiterook
+        }
+        SideColor.Black -> when (piece.type) {
+            PieceType.Bishop -> R.drawable.blackbishop
+            PieceType.King -> R.drawable.blackknight
+            PieceType.Knight -> R.drawable.blackknight
+            PieceType.Pawn -> R.drawable.blackpawn
+            PieceType.Queen -> R.drawable.blackqueen
+            PieceType.Rook -> R.drawable.blackrook
+        }
+        SideColor.None -> 0
+    }
+
     private fun extractMovesMap(
         sourceMap: Map<Cell, Collection<Cell>>,
         keyCell: Cell,
+        isWhite: Boolean
     ): Map<Int, Int> {
         val targets = sourceMap[keyCell] ?: return emptyMap()
 
         return targets
-            .map { convertCellToInts(it) }
+            .map { convertCellToInts(it, isWhite) }
             .associate { (row, col) -> row to col }
     }
 
     fun convertBoardMap(
-        input: Map<Cell, Piece>
-    ): Map<Int, MutableMap<Int, String>> {
-        val result = mutableMapOf<Int, MutableMap<Int, String>>()
+        input: Map<Cell, Piece>,
+        isWhite: Boolean
+    ): Map<Int, MutableMap<Int, Int>> {
+        val result = mutableMapOf<Int, MutableMap<Int, Int>>()
 
         for ((cell, piece) in input) {
-            val (row, col) = convertCellToInts(cell)
+            val (row, col) = convertCellToInts(cell, isWhite)
             val pic = convertPieceToPic(piece)
 
             val rowMap = result.getOrPut(row) { mutableMapOf() }
