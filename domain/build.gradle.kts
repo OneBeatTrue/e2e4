@@ -1,0 +1,28 @@
+plugins {
+    id("java-library")
+    alias(libs.plugins.jetbrains.kotlin.jvm)
+//    id("kotlin-kapt")
+//    id("com.google.dagger.hilt.android")
+}
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+    }
+}
+
+dependencies {
+    implementation(libs.kotlinx.coroutines.core)
+}
+
+//dependencies {
+//    implementation(libs.hilt.android)
+//    kapt(libs.hilt.android.compiler)
+//}
+//
+//kapt {
+//    correctErrorTypes = true
+//}
