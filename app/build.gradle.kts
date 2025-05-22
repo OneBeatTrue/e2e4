@@ -67,7 +67,7 @@ dependencies {
 //    implementation(libs.androidx.lifecycle.livedata.ktx)
 
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    kapt(libs.hilt.compiler)
 
     implementation(libs.orbit.core)
 // or, if on Android:

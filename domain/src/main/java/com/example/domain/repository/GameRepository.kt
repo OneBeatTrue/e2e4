@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.StateFlow
 interface GameRepository {
     val currentGameFlow : StateFlow<Game>
 
-    fun getPlayer(param: LoginPlayerParam): Player
+    suspend fun getPlayer(param: LoginPlayerParam): Player
 
-    fun getAllPlayers(): Collection<Player>
+    suspend fun getAllPlayers(): Collection<Player>
 
-    fun createPlayer(param: RegisterPlayerParam): Player
+    suspend fun createPlayer(param: RegisterPlayerParam): Player
 
-    fun updateCurrentPlayer(param: Player)
+    suspend fun updateCurrentPlayer(param: Player)
 
-    fun updateCurrentBoard(param: Board)
+    suspend fun updateCurrentBoard(param: Board)
 }

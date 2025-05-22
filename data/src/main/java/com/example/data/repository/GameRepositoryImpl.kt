@@ -1,68 +1,73 @@
 package com.example.data.repository
 
 import com.example.domain.models.Player
-import com.example.data.storage.UserStorage
-import com.example.data.storage.models.User
-import com.example.data.storage.models.UserIdentifier
+import com.example.data.general.dao.UserGeneralDao
+import com.example.data.general.entities.UserGeneralEntity
+import com.example.data.local.dao.UserLocalDao
+import com.example.data.mapper.toGameDomain
+import com.example.data.mapper.toPlayerDomain
+import com.example.data.mapper.toUserGeneralEntity
+import com.example.data.mapper.toUserLocalEntity
 import com.example.domain.models.Board
 import com.example.domain.models.Game
 import com.example.domain.models.RegisterPlayerParam
 import com.example.domain.models.LoginPlayerParam
 import com.example.domain.repository.GameRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
 
-class GameRepositoryImpl(private val userStorage: UserStorage) : GameRepository {
-    private val _currentGameFlow = MutableStateFlow(Game.Empty)
-    override val currentGameFlow = _currentGameFlow.asStateFlow()
+class GameRepositoryImpl @Inject constructor(
+    private val userGeneralDao: UserGeneralDao,
+    private val userLocalDao: UserLocalDao
+) : GameRepository {
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    override val currentGameFlow = userLocalDao.getUser().map { it?.toGameDomain() ?: Game.Empty }
+        .stateIn(scope = scope, started = SharingStarted.Lazily, initialValue = Game.Empty)
 
-    override fun getPlayer(param: LoginPlayerParam): Player {
-        val user = userStorage.get(UserIdentifier(param.name)) ?: return Player.Empty
-        return toDomain(user).player
+    override suspend fun getPlayer(param: LoginPlayerParam): Player {
+        val user = userGeneralDao.getByName(param.name) ?: return Player.Empty
+        return user.toPlayerDomain()
     }
 
-    override fun getAllPlayers(): Collection<Player> {
-        return userStorage.getAll().map { toDomain(it).player };
+    override suspend fun getAllPlayers(): Collection<Player> {
+        return userGeneralDao.getAll().map { it.toPlayerDomain() };
     }
 
-    override fun createPlayer(param: RegisterPlayerParam): Player {
-        return toDomain(userStorage.create(UserIdentifier(param.name))).player
+    override suspend fun createPlayer(param: RegisterPlayerParam): Player {
+        val player = Player.Empty.copy(name = param.name)
+        val game = Game.Empty.copy(player = player)
+        userGeneralDao.insert(game.toUserGeneralEntity())
+        return player
     }
 
-    override fun updateCurrentPlayer(param: Player) {
-        val user = userStorage.get(UserIdentifier(param.name))
-//        if (!_currentGameFlow.value.player.isEmpty()) userStorage.save(toStorage(_currentGameFlow.value))
+    override suspend fun updateCurrentPlayer(param: Player) {
+        val user = userGeneralDao.getByName(param.name)
         if (user != null) {
-            val field = fenToField(user.fen)
-            userStorage.save(toStorage(Game(param, field)))
-            _currentGameFlow.update { game -> game.copy(player = param, board = field) }
+            val userGeneralEntity = user.copy(name = param.name, wins = param.wins, losses = param.losses)
+            userGeneralDao.insert(userGeneralEntity)
+            userLocalDao.clear()
+            userLocalDao.insert(userGeneralEntity.toUserLocalEntity())
+        } else {
+            if (currentGameFlow.value.player.isEmpty()) userLocalDao.insert(
+                currentGameFlow.value.copy(
+                    player = Player(Player.Empty.name, param.wins, param.losses)
+                ).toUserLocalEntity()
+            )
         }
-        else {
-            if (_currentGameFlow.value.player.isEmpty()) _currentGameFlow.update { game -> game.copy(player = Player(Player.Empty.name, param.wins, param.losses)) }
-        }
     }
 
-    override fun updateCurrentBoard(param: Board) {
-        if (!_currentGameFlow.value.player.isEmpty()) userStorage.save(toStorage(Game(_currentGameFlow.value.player, param)))
-        _currentGameFlow.update { game -> game.copy(board = param) }
-    }
-
-    private fun toStorage(game: Game) : User {
-        return User(game.player.name, game.player.wins, game.player.losses, fieldToFen(game.board))
-    }
-
-    private fun toDomain(user: User) : Game {
-        return Game(Player(user.name, user.wins, user.losses), fenToField(user.fen))
-    }
-
-    private fun fenToField(fen: String) : Board {
-        return Board.StartWhite
-    }
-
-    private fun fieldToFen(board: Board) : String {
-        return "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    override suspend fun updateCurrentBoard(param: Board) {
+        if (!currentGameFlow.value.player.isEmpty()) userGeneralDao.insert(currentGameFlow.value.copy(board = param).toUserGeneralEntity())
+        userLocalDao.insert(currentGameFlow.value.copy(board = param).toUserLocalEntity())
     }
 
 }

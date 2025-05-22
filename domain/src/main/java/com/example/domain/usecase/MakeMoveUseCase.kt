@@ -6,7 +6,7 @@ import com.example.domain.repository.ChessRepository
 import com.example.domain.repository.GameRepository
 
 class MakeMoveUseCase(private val gameRepository: GameRepository, private val chessRepository: ChessRepository) {
-    fun execute(move: Move) {
+    suspend fun execute(move: Move) {
         val board = chessRepository.makeMove(move, gameRepository.currentGameFlow.value.board)
         gameRepository.updateCurrentBoard(board)
         if (board.isFinished()) {

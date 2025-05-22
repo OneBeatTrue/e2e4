@@ -1,5 +1,6 @@
 package com.example.e2e4.presentation.screens.game
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -124,7 +125,7 @@ fun ChessBoard(state: GameState, viewModel: GameViewModel) {
                             }
                     ) {
                         state.pieces[row]?.get(col)?.let {
-                            Icon(
+                            Image(
                                 painter = painterResource(it),
                                 contentDescription = null,
                                 modifier = Modifier.fillMaxSize()

@@ -1,5 +1,6 @@
 package com.example.e2e4.presentation.screens.game
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.models.Board
@@ -32,6 +33,7 @@ class GameViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getCurrentGameFlowUseCase.execute().collect {
+                Log.d ("OBT", it.toString())
                 onIntent(GameIntent.Update(it.board))
             }
         }
@@ -51,7 +53,7 @@ class GameViewModel @Inject constructor(
                     pieces = convertBoardMap(board.board, (board.color == SideColor.White)),
                     chosenRow = -1,
                     chosenCol = -1,
-                    moves = mapOf(),
+                    moves = emptyMap(),
                     isFinished = board.isFinished(),
                     possibleMoves = board.possibleMoves,
                     isWhite = (board.color == SideColor.White)
@@ -67,31 +69,52 @@ class GameViewModel @Inject constructor(
                     chosenRow = -1,
                     chosenCol = -1,
                     moves = emptyMap(),
-                    isFinished = board.isFinished()
+                    isFinished = board.isFinished(),
+                    possibleMoves = emptyMap(),
+                    isWhite = (board.color == SideColor.White)
                 )
             }
         }
     }
 
     private fun retry() = intent {
-        retryUseCase.execute()
+        runCatching { retryUseCase.execute() }.onFailure { postSideEffect(GameSideEffect.ShowNotification("Ошибка сети")) }
     }
 
     private fun resign() = intent {
-        resignUseCase.execute()
+        runCatching { resignUseCase.execute() }.onFailure { postSideEffect(GameSideEffect.ShowNotification("Ошибка сети")) }
     }
 
     private fun chooseCell(row: Int, col: Int) = intent {
         if (!state.isFinished) {
-            if (state.chosenRow != -1 && state.chosenCol != -1) {
+            if (state.chosenRow != -1 || state.chosenCol != -1) {
                 val move = Move(
                     convertIntsToCell(state.chosenRow, state.chosenCol, state.isWhite),
                     convertIntsToCell(row, col, state.isWhite)
                 )
-                if (state.possibleMoves[move.from]?.contains(move.to) == true) makeMoveUseCase.execute(
-                    move
-                )
-                reduce { state.copy(chosenRow = -1, chosenCol = -1, moves = mapOf()) }
+                if (state.possibleMoves[move.from]?.contains(move.to) == true) {
+                    runCatching {
+                        makeMoveUseCase.execute(
+                            move
+                        )
+                    }.onSuccess {
+                        reduce {
+                            state.copy(
+                                chosenRow = -1,
+                                chosenCol = -1,
+                                moves = emptyMap()
+                            )
+                        }
+                    }.onFailure { postSideEffect(GameSideEffect.ShowNotification("Ошибка сети")) }
+                } else {
+                    reduce {
+                        state.copy(
+                            chosenRow = -1,
+                            chosenCol = -1,
+                            moves = emptyMap()
+                        )
+                    }
+                }
             } else {
                 reduce {
                     state.copy(
@@ -131,20 +154,22 @@ class GameViewModel @Inject constructor(
     private fun convertPieceToPic(piece: Piece): Int = when (piece.color) {
         SideColor.White -> when (piece.type) {
             PieceType.Bishop -> R.drawable.whitebishop
-            PieceType.King -> R.drawable.whiteknight
+            PieceType.King -> R.drawable.whiteking
             PieceType.Knight -> R.drawable.whiteknight
             PieceType.Pawn -> R.drawable.whitepawn
             PieceType.Queen -> R.drawable.whitequeen
             PieceType.Rook -> R.drawable.whiterook
         }
+
         SideColor.Black -> when (piece.type) {
             PieceType.Bishop -> R.drawable.blackbishop
-            PieceType.King -> R.drawable.blackknight
+            PieceType.King -> R.drawable.blackking
             PieceType.Knight -> R.drawable.blackknight
             PieceType.Pawn -> R.drawable.blackpawn
             PieceType.Queen -> R.drawable.blackqueen
             PieceType.Rook -> R.drawable.blackrook
         }
+
         SideColor.None -> 0
     }
 
@@ -160,7 +185,7 @@ class GameViewModel @Inject constructor(
             .associate { (row, col) -> row to col }
     }
 
-    fun convertBoardMap(
+    private fun convertBoardMap(
         input: Map<Cell, Piece>,
         isWhite: Boolean
     ): Map<Int, MutableMap<Int, Int>> {

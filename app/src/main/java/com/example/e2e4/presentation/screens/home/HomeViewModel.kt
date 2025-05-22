@@ -47,13 +47,19 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getPlayer(name: String) = intent {
-        val result = loginPlayerUseCase.execute(LoginPlayerParam(name))
-        if (!result) {
-            postSideEffect(HomeSideEffect.ShowNotification("Пользователь не найден"))
+        val result = kotlin.runCatching { loginPlayerUseCase.execute(LoginPlayerParam(name)) }.onSuccess {
+            if (!it) {
+                postSideEffect(HomeSideEffect.ShowNotification("Пользователь не найден"))
+            }
+        }.onFailure {
+            postSideEffect(HomeSideEffect.ShowNotification("Ошибка сети"))
         }
     }
 
     private fun createPlayer(name: String) = intent {
-        registerPlayerUseCase.execute(RegisterPlayerParam(name))
+        runCatching { registerPlayerUseCase.execute(RegisterPlayerParam(name)) }.onFailure {
+            postSideEffect(HomeSideEffect.ShowNotification("Ошибка сети"))
+        }
+
     }
 }

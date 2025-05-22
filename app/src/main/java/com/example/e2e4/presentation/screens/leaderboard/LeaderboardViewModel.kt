@@ -17,11 +17,12 @@ class LeaderboardViewModel @Inject constructor(
     fun onCreate() = fetchAllPlayers()
 
     private fun fetchAllPlayers() = intent {
-        val players = getAllPlayersUseCase.execute()
-        reduce {
-            state.copy(
-                players = players.sortedWith(compareBy({-it.wins}, {it.losses}, {it.name}))
-            )
-        }
+        val players = runCatching { getAllPlayersUseCase.execute() }.onSuccess {
+            reduce {
+                state.copy(
+                    players = it.sortedWith(compareBy({-it.wins}, {it.losses}, {it.name}))
+                )
+            }
+        }.onFailure {  }
     }
 }
