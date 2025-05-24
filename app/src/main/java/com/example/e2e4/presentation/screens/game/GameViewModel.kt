@@ -33,8 +33,8 @@ class GameViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getCurrentGameFlowUseCase.execute().collect {
-                Log.d ("OBT", it.toString())
-                onIntent(GameIntent.Update(it.board))
+                Log.d("OBT", it.toString())
+                onIntent(GameIntent.Update(it.board, it.player.side))
             }
         }
     }
@@ -43,46 +43,44 @@ class GameViewModel @Inject constructor(
         is GameIntent.Choose -> chooseCell(intent.row, intent.col)
         is GameIntent.Resign -> resign()
         is GameIntent.Retry -> retry()
-        is GameIntent.Update -> updateBoard(intent.board)
+        is GameIntent.Update -> updateBoard(intent.board, intent.side)
     }
 
-    private fun updateBoard(board: Board) = intent {
-        if (!board.isFinished()) {
-            reduce {
-                state.copy(
-                    pieces = convertBoardMap(board.board, (board.side == SideColor.White)),
-                    chosenRow = -1,
-                    chosenCol = -1,
-                    moves = emptyMap(),
-                    isFinished = board.isFinished(),
-                    possibleMoves = board.possibleMoves,
-                    isWhite = (board.side == SideColor.White)
-                )
-            }
-        } else {
-            if (!state.isFinished) {
-                postSideEffect(GameSideEffect.ShowNotification(if (board.isWin()) "Победа" else "Поражение"))
-            }
-            reduce {
-                state.copy(
-                    pieces = convertBoardMap(board.board, (board.side == SideColor.White)),
-                    chosenRow = -1,
-                    chosenCol = -1,
-                    moves = emptyMap(),
-                    isFinished = board.isFinished(),
-                    possibleMoves = emptyMap(),
-                    isWhite = (board.side == SideColor.White)
-                )
-            }
+    private fun updateBoard(board: Board, side: SideColor) = intent {
+        if (board.isFinished() && !state.isFinished) {
+            postSideEffect(GameSideEffect.ShowNotification(if (board.mate == side) "Победа" else "Поражение"))
+        }
+        reduce {
+            state.copy(
+                isWhite = (side == SideColor.White),
+                pieces = convertBoardMap(board.board, (side == SideColor.White)),
+                chosenRow = -1,
+                chosenCol = -1,
+                possibleMoves = board.possibleMoves,
+                moves = emptyMap(),
+                isFinished = board.isFinished(),
+            )
         }
     }
 
     private fun retry() = intent {
-        runCatching { retryUseCase.execute() }.onFailure { postSideEffect(GameSideEffect.ShowNotification("Ошибка сети")) }
+        runCatching { retryUseCase.execute() }.onFailure {
+            postSideEffect(
+                GameSideEffect.ShowNotification(
+                    "Ошибка сети"
+                )
+            )
+        }
     }
 
     private fun resign() = intent {
-        runCatching { resignUseCase.execute() }.onFailure { postSideEffect(GameSideEffect.ShowNotification("Ошибка сети")) }
+        runCatching { resignUseCase.execute() }.onFailure {
+            postSideEffect(
+                GameSideEffect.ShowNotification(
+                    "Ошибка сети"
+                )
+            )
+        }
     }
 
     private fun chooseCell(row: Int, col: Int) = intent {
@@ -97,23 +95,14 @@ class GameViewModel @Inject constructor(
                         makeMoveUseCase.execute(
                             move
                         )
-                    }.onSuccess {
-                        reduce {
-                            state.copy(
-                                chosenRow = -1,
-                                chosenCol = -1,
-                                moves = emptyMap()
-                            )
-                        }
                     }.onFailure { postSideEffect(GameSideEffect.ShowNotification("Ошибка сети")) }
-                } else {
-                    reduce {
-                        state.copy(
-                            chosenRow = -1,
-                            chosenCol = -1,
-                            moves = emptyMap()
-                        )
-                    }
+                }
+                reduce {
+                    state.copy(
+                        chosenRow = -1,
+                        chosenCol = -1,
+                        moves = emptyMap()
+                    )
                 }
             } else {
                 reduce {
@@ -151,8 +140,8 @@ class GameViewModel @Inject constructor(
         return Pair(rowIndex, columnIndex)
     }
 
-    private fun convertPieceToPic(piece: Piece): Int = when (piece.color) {
-        SideColor.White -> when (piece.type) {
+    private fun Piece.toPic() = when (this.color) {
+        SideColor.White -> when (this.type) {
             PieceType.Bishop -> R.drawable.whitebishop
             PieceType.King -> R.drawable.whiteking
             PieceType.Knight -> R.drawable.whiteknight
@@ -161,7 +150,7 @@ class GameViewModel @Inject constructor(
             PieceType.Rook -> R.drawable.whiterook
         }
 
-        SideColor.Black -> when (piece.type) {
+        SideColor.Black -> when (this.type) {
             PieceType.Bishop -> R.drawable.blackbishop
             PieceType.King -> R.drawable.blackking
             PieceType.Knight -> R.drawable.blackknight
@@ -193,10 +182,8 @@ class GameViewModel @Inject constructor(
 
         for ((cell, piece) in input) {
             val (row, col) = convertCellToInts(cell, isWhite)
-            val pic = convertPieceToPic(piece)
-
             val rowMap = result.getOrPut(row) { mutableMapOf() }
-            rowMap[col] = pic
+            rowMap[col] = piece.toPic()
         }
 
         return result

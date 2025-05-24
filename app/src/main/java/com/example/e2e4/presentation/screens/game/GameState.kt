@@ -8,7 +8,7 @@ data class GameState(
     val chosenCol: Int = -1,
     val moves: Map<Int, Int> = emptyMap(),
     val isFinished: Boolean = false,
+    val isWhite: Boolean = true,
     val possibleMoves : Map<Cell, Collection<Cell>> = emptyMap(),
-    val isWhite: Boolean = true
 )
 

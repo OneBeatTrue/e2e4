@@ -12,9 +12,8 @@ data class UserLocalEntity(
     val losses: Int,
     val fen: String,
     val moves: String,
-    val finished: Boolean,
-    val win: Boolean,
-    val side: Boolean
+    val side: Boolean,
+    val mate: Int,
 ) {
     companion object {
         const val TABLE_NAME = "user_table"

@@ -4,7 +4,9 @@ import com.example.domain.models.Player
 import com.example.data.general.dao.UserGeneralDao
 import com.example.data.general.entities.UserGeneralEntity
 import com.example.data.local.dao.UserLocalDao
+import com.example.data.mapper.toBoolean
 import com.example.data.mapper.toGameDomain
+import com.example.data.mapper.toInt
 import com.example.data.mapper.toPlayerDomain
 import com.example.data.mapper.toUserGeneralEntity
 import com.example.data.mapper.toUserLocalEntity
@@ -52,7 +54,7 @@ class GameRepositoryImpl @Inject constructor(
     override suspend fun updateCurrentPlayer(param: Player) {
         val user = userGeneralDao.getByName(param.name)
         if (user != null) {
-            val userGeneralEntity = user.copy(name = param.name, wins = param.wins, losses = param.losses)
+            val userGeneralEntity = user.copy(name = param.name, wins = param.wins, losses = param.losses, side = param.side.toBoolean())
             userGeneralDao.insert(userGeneralEntity)
             userLocalDao.clear()
             userLocalDao.insert(userGeneralEntity.toUserLocalEntity())
@@ -60,7 +62,7 @@ class GameRepositoryImpl @Inject constructor(
             if (currentGameFlow.value.player.isEmpty()) {
                 userLocalDao.insert(
                     currentGameFlow.value.copy(
-                        player = Player(Player.Empty.name, param.wins, param.losses)
+                        player = Player(Player.Empty.name, param.wins, param.losses, param.side)
                     ).toUserLocalEntity()
                 )
             }

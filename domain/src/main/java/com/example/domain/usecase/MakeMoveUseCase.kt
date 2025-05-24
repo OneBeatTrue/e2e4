@@ -12,8 +12,8 @@ class MakeMoveUseCase(private val gameRepository: GameRepository, private val ch
         if (board.isFinished()) {
             val player = gameRepository.currentGameFlow.value.player
             gameRepository.updateCurrentPlayer(
-                if (board.isWin()) Player(player.name, player.wins + 1, player.losses)
-                else Player(player.name, player.wins, player.losses + 1)
+                if (player.side == board.mate) Player(player.name, player.wins + 1, player.losses, player.side)
+                else Player(player.name, player.wins, player.losses + 1, player.side)
             )
         }
     }
