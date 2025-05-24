@@ -16,8 +16,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url=uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "E2E4"
 include(":app")
+
+
+include(":data")
+include(":domain")
+
