@@ -7,9 +7,9 @@ import com.example.domain.models.Board
 import com.example.domain.models.Move
 import com.example.domain.models.SideColor
 import com.example.domain.repository.ChessRepository
-import com.example.e2e4.remote.dto.AllPossibleMovesRequestBody
-import com.example.e2e4.remote.dto.BestMoveRequestBody
-import com.example.e2e4.remote.dto.MakeMoveRequestBody
+import com.example.data.api.dto.AllPossibleMovesRequestBody
+import com.example.data.api.dto.BestMoveRequestBody
+import com.example.data.api.dto.MakeMoveRequestBody
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
