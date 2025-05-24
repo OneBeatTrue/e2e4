@@ -45,7 +45,7 @@ fun UserLocalEntity.toUserGeneralEntity() = UserGeneralEntity(name = name, losse
 fun UserGeneralEntity.toUserLocalEntity() = UserLocalEntity(name = name, losses = losses, wins = wins, fen = fen, moves = moves, mate = mate, side = side)
 
 
-fun UserLocalEntity.toPlayerDomain() = Player(name = name, losses = wins, wins = losses, side = side.toSideColor())
+fun UserLocalEntity.toPlayerDomain() = Player(name = name, losses = losses, wins = wins, side = side.toSideColor())
 
 fun UserGeneralEntity.toPlayerDomain() = this.toUserLocalEntity().toPlayerDomain()
 
