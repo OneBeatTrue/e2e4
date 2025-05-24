@@ -27,7 +27,7 @@ internal interface NetworkModule {
     fun bindPlayerApi(impl: ChessApiImpl): ChessApi
 
     companion object {
-        private const val BASE_URL = "https://kolzuk.ru/api/"
+        private const val BASE_URL = "http://51.250.31.151"
 
         @BaseUrl
         @Provides

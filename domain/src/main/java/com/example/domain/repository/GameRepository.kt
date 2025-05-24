@@ -19,4 +19,6 @@ interface GameRepository {
     suspend fun updateCurrentPlayer(param: Player)
 
     suspend fun updateCurrentBoard(param: Board)
+
+    suspend fun updateCurrentGame(param: Game)
 }

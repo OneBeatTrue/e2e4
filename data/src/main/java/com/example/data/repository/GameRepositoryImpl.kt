@@ -82,4 +82,11 @@ class GameRepositoryImpl @Inject constructor(
         userLocalDao.insert(currentGameFlow.value.copy(board = param).toUserLocalEntity())
     }
 
+    override suspend fun updateCurrentGame(param: Game) {
+        val user = userGeneralDao.getByName(param.player.name)
+        val newUser = param.toUserLocalEntity()
+        if (user != null) userGeneralDao.insert(newUser.toUserGeneralEntity())
+        userLocalDao.insert(newUser)
+    }
+
 }

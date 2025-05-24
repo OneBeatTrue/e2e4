@@ -95,7 +95,9 @@ class GameViewModel @Inject constructor(
                         makeMoveUseCase.execute(
                             move
                         )
-                    }.onFailure { postSideEffect(GameSideEffect.ShowNotification("Ошибка сети")) }
+                    }.onFailure {
+                        Log.d("OBT", it.toString())
+                        postSideEffect(GameSideEffect.ShowNotification("Ошибка сети")) }
                 }
                 reduce {
                     state.copy(

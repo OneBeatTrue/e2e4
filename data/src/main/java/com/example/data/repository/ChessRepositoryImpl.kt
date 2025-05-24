@@ -22,7 +22,7 @@ class ChessRepositoryImpl @Inject constructor(private val chessApi: ChessApi) : 
         val makeMovePlayerResponseBody =
             chessApi.postMakeMove(MakeMoveRequestBody(board.fen, move.toUci()))
         val bestMoveResponseBody =
-            chessApi.postBestMove(BestMoveRequestBody(makeMovePlayerResponseBody.fen, 16))
+            chessApi.postBestMove(BestMoveRequestBody(makeMovePlayerResponseBody.fen, 4))
         if (bestMoveResponseBody.moves.isNotEmpty()) {
             val botMove = bestMoveResponseBody.moves.random() //.also { Log.d("MY_TAG", "${it}") }
             val makeBotMoveResponseBody =
