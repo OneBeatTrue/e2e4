@@ -23,9 +23,6 @@ dependencyResolutionManagement {
 rootProject.name = "E2E4"
 include(":app")
 
-include(":database")
-include(":remote")
-
 
 include(":data")
 include(":domain")

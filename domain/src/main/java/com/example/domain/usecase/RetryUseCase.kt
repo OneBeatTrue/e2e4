@@ -10,6 +10,6 @@ class RetryUseCase(
 ) {
     suspend fun execute() {
         val player = gameRepository.currentGameFlow.value.player
-        gameRepository.updateCurrentBoard(chessRepository.getStartField(if ((player.wins + player.losses) % 2 == 0) SideColor.White else SideColor.Black))
+        gameRepository.updateCurrentBoard(chessRepository.getStartBoard(if ((player.wins + player.losses) % 2 == 0) SideColor.White else SideColor.Black))
     }
 }

@@ -36,7 +36,7 @@ class ChessRepositoryImpl @Inject constructor(private val chessApi: ChessApi) : 
         return@withContext fenAndMovesToBoardDomain(fen = makeMovePlayerResponseBody.fen, moves = "")
     }
 
-    override fun getStartField(color: SideColor): Board {
+    override fun getStartBoard(color: SideColor): Board {
         return when (color) {
             SideColor.White -> Board.StartWhite
             else -> Board.StartBlack

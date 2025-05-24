@@ -5,9 +5,11 @@ import com.example.domain.models.RegisterPlayerParam
 import com.example.domain.repository.GameRepository
 
 class RegisterPlayerUseCase(private val gameRepository: GameRepository) {
-    suspend fun execute(param: RegisterPlayerParam) {
+    suspend fun execute(param: RegisterPlayerParam) : Boolean {
         val player = gameRepository.getPlayer(LoginPlayerParam(param.name))
-        if (player.isEmpty()) gameRepository.createPlayer(param)
-        gameRepository.updateCurrentPlayer(player)
+        if (!player.isEmpty()) return false
+        gameRepository.createPlayer(param)
+        gameRepository.updateCurrentPlayer(gameRepository.getPlayer(LoginPlayerParam(param.name)))
+        return true
     }
 }

@@ -57,11 +57,21 @@ class GameRepositoryImpl @Inject constructor(
             userLocalDao.clear()
             userLocalDao.insert(userGeneralEntity.toUserLocalEntity())
         } else {
-            if (currentGameFlow.value.player.isEmpty()) userLocalDao.insert(
-                currentGameFlow.value.copy(
-                    player = Player(Player.Empty.name, param.wins, param.losses)
-                ).toUserLocalEntity()
-            )
+            if (currentGameFlow.value.player.isEmpty()) {
+                userLocalDao.insert(
+                    currentGameFlow.value.copy(
+                        player = Player(Player.Empty.name, param.wins, param.losses)
+                    ).toUserLocalEntity()
+                )
+            }
+            else {
+                userLocalDao.clear()
+                userLocalDao.insert(
+                    currentGameFlow.value.copy(
+                        player = Player.Empty, board = Board.StartWhite
+                    ).toUserLocalEntity()
+                )
+            }
         }
     }
 

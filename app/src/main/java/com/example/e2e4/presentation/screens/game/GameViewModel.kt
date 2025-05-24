@@ -50,13 +50,13 @@ class GameViewModel @Inject constructor(
         if (!board.isFinished()) {
             reduce {
                 state.copy(
-                    pieces = convertBoardMap(board.board, (board.color == SideColor.White)),
+                    pieces = convertBoardMap(board.board, (board.side == SideColor.White)),
                     chosenRow = -1,
                     chosenCol = -1,
                     moves = emptyMap(),
                     isFinished = board.isFinished(),
                     possibleMoves = board.possibleMoves,
-                    isWhite = (board.color == SideColor.White)
+                    isWhite = (board.side == SideColor.White)
                 )
             }
         } else {
@@ -65,13 +65,13 @@ class GameViewModel @Inject constructor(
             }
             reduce {
                 state.copy(
-                    pieces = convertBoardMap(board.board, (board.color == SideColor.White)),
+                    pieces = convertBoardMap(board.board, (board.side == SideColor.White)),
                     chosenRow = -1,
                     chosenCol = -1,
                     moves = emptyMap(),
                     isFinished = board.isFinished(),
                     possibleMoves = emptyMap(),
-                    isWhite = (board.color == SideColor.White)
+                    isWhite = (board.side == SideColor.White)
                 )
             }
         }

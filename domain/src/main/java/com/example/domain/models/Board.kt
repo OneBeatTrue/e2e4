@@ -2,13 +2,13 @@ package com.example.domain.models
 
 data class Board(
     val board: Map<Cell, Piece>,
-    val color: SideColor,
+    val side: SideColor,
     val possibleMoves: Map<Cell, Collection<Cell>>,
     val mate: SideColor,
     val fen: String
 ) {
     fun isFinished(): Boolean = (mate != SideColor.None)
-    fun isWin(): Boolean = (isFinished() && (color == mate))
+    fun isWin(): Boolean = (isFinished() && (side == mate))
 
     companion object {
         val StartWhite = Board(
@@ -50,7 +50,7 @@ data class Board(
                 Cell("8", "g") to Piece(PieceType.Knight, SideColor.Black),
                 Cell("8", "h") to Piece(PieceType.Rook, SideColor.Black),
             ),
-            color = SideColor.White,
+            side = SideColor.White,
             possibleMoves = mapOf(
                 Cell("2", "a") to listOf(Cell("3", "a"), Cell("4", "a")),
                 Cell("2", "b") to listOf(Cell("3", "b"), Cell("4", "b")),
@@ -102,7 +102,7 @@ data class Board(
                 Cell("8", "g") to Piece(PieceType.Knight, SideColor.Black),
                 Cell("8", "h") to Piece(PieceType.Rook, SideColor.Black),
             ),
-            color = SideColor.Black,
+            side = SideColor.Black,
             possibleMoves = mapOf(
                 Cell("7", "a") to listOf(Cell("6", "a"), Cell("5", "a")),
                 Cell("7", "b") to listOf(Cell("6", "b"), Cell("5", "b")),

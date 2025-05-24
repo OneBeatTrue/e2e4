@@ -27,11 +27,11 @@ fun UserGeneralEntity.toGameDomain() = this.toUserLocalEntity().toGameDomain()
 fun UserGeneralEntity.toPlayerDomain() = Player(name, wins, losses)
 
 
-fun UserLocalEntity.toGameDomain() = Game(player = Player(name, wins, losses), board = fenAndMovesToBoardDomain(fen = fen, moves = moves).copy(color = if (side) SideColor.White else SideColor.Black, mate = if (!finished) SideColor.None else (if (win) (if (side) SideColor.White else SideColor.Black) else (if (side) SideColor.Black else SideColor.White))))
+fun UserLocalEntity.toGameDomain() = Game(player = Player(name, wins, losses), board = fenAndMovesToBoardDomain(fen = fen, moves = moves).copy(side = if (side) SideColor.White else SideColor.Black, mate = if (!finished) SideColor.None else (if (win) (if (side) SideColor.White else SideColor.Black) else (if (side) SideColor.Black else SideColor.White))))
 
 fun Game.toUserLocalEntity() = this.toUserGeneralEntity().toUserLocalEntity()
 
-fun Game.toUserGeneralEntity() = UserGeneralEntity(name = player.name, wins = player.wins, losses = player.losses, fen = board.fen, moves = convertMapToMovesString(board.possibleMoves), finished = board.isFinished(), side = (board.color == SideColor.White), win = board.isWin())
+fun Game.toUserGeneralEntity() = UserGeneralEntity(name = player.name, wins = player.wins, losses = player.losses, fen = board.fen, moves = convertMapToMovesString(board.possibleMoves), finished = board.isFinished(), side = (board.side == SideColor.White), win = board.isWin())
 
 fun Move.toUci() = this.let {
     it.from.column + it.from.row + it.to.column + it.to.row
@@ -94,7 +94,7 @@ fun fenAndMovesToBoardDomain(fen: String, moves: String) : Board {
 
     val resultMoves = moves.toMapMoves()
 
-    return Board(board = resultBoard, color = color, possibleMoves = resultMoves, mate = mate, fen = fen)
+    return Board(board = resultBoard, side = color, possibleMoves = resultMoves, mate = mate, fen = fen)
 }
 
 private fun squareToCell(square: Square): Cell {
