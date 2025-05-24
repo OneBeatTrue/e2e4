@@ -18,20 +18,47 @@ import com.github.bhlangonijr.chesslib.Side as LibSide
 import com.github.bhlangonijr.chesslib.Piece as LibPiece
 import com.github.bhlangonijr.chesslib.PieceType as LibPieceType
 
-fun UserGeneralEntity.toUserLocalEntity() = UserLocalEntity(name = name, losses = losses, wins = wins, fen = fen, moves = moves, win = win, finished = finished, side = side)
+fun SideColor.toInt() = when (this) {
+    SideColor.White -> 1
+    SideColor.Black -> -1
+    SideColor.None -> 0
+}
 
-fun UserLocalEntity.toUserGeneralEntity() = UserGeneralEntity(name = name, losses = losses, wins = wins, fen = fen, moves = moves, win = win, finished = finished, side = side)
+fun Int.toSideColor() = when (this) {
+    1 -> SideColor.White
+    -1 -> SideColor.Black
+    else -> SideColor.None
+}
+
+fun SideColor.toBoolean() = when (this) {
+    SideColor.White -> true
+    else -> false
+}
+
+fun Boolean.toSideColor() = when (this) {
+    true -> SideColor.White
+    false -> SideColor.Black
+}
+
+fun UserLocalEntity.toUserGeneralEntity() = UserGeneralEntity(name = name, losses = losses, wins = wins, fen = fen, moves = moves, mate = mate, side = side)
+
+fun UserGeneralEntity.toUserLocalEntity() = UserLocalEntity(name = name, losses = losses, wins = wins, fen = fen, moves = moves, mate = mate, side = side)
+
+
+fun UserLocalEntity.toPlayerDomain() = Player(name = name, losses = wins, wins = losses, side = side.toSideColor())
+
+fun UserGeneralEntity.toPlayerDomain() = this.toUserLocalEntity().toPlayerDomain()
+
+
+fun UserLocalEntity.toGameDomain() = Game(player = this.toPlayerDomain(), board = fen.fenToBoardDomain(moves = moves).copy(mate = this.mate.toSideColor()))
 
 fun UserGeneralEntity.toGameDomain() = this.toUserLocalEntity().toGameDomain()
 
-fun UserGeneralEntity.toPlayerDomain() = Player(name, wins, losses)
 
-
-fun UserLocalEntity.toGameDomain() = Game(player = Player(name, wins, losses), board = fenAndMovesToBoardDomain(fen = fen, moves = moves).copy(side = if (side) SideColor.White else SideColor.Black, mate = if (!finished) SideColor.None else (if (win) (if (side) SideColor.White else SideColor.Black) else (if (side) SideColor.Black else SideColor.White))))
+fun Game.toUserGeneralEntity() = UserGeneralEntity(name = player.name, wins = player.wins, losses = player.losses, fen = board.fen, moves = board.possibleMoves.toMovesString(), side = player.side.toBoolean(), mate = board.mate.toInt())
 
 fun Game.toUserLocalEntity() = this.toUserGeneralEntity().toUserLocalEntity()
 
-fun Game.toUserGeneralEntity() = UserGeneralEntity(name = player.name, wins = player.wins, losses = player.losses, fen = board.fen, moves = convertMapToMovesString(board.possibleMoves), finished = board.isFinished(), side = (board.side == SideColor.White), win = board.isWin())
 
 fun Move.toUci() = this.let {
     it.from.column + it.from.row + it.to.column + it.to.row
@@ -44,7 +71,7 @@ fun String.toMove() = this.let {
     )
 }
 
-fun String.toMapMoves() = this.let {
+private fun String.toMapMoves() = this.let {
     val resultMoves = mutableMapOf<Cell, MutableList<Cell>>()
 
     for (uci in it.split("/")) {
@@ -55,19 +82,17 @@ fun String.toMapMoves() = this.let {
     resultMoves
 }
 
-fun convertMapToMovesString(movesMap: Map<Cell, Collection<Cell>>): String {
-    return movesMap.flatMap { (from, toList) ->
+private fun Map<Cell, Collection<Cell>>.toMovesString() = this.flatMap { (from, toList) ->
         toList.map { to ->
             "${from.column}${from.row}${to.column}${to.row}"
         }
-    }.joinToString("\\")
-}
+    }.joinToString("/")
 
-fun fenAndMovesToBoardDomain(fen: String, moves: String) : Board {
+
+fun String.fenToBoardDomain(moves: String) : Board {
     val board = com.github.bhlangonijr.chesslib.Board()
-    board.loadFromFen(fen)
+    board.loadFromFen(this)
 
-    val color = if (board.sideToMove == Side.WHITE) SideColor.White else SideColor.Black
 
     val winner = when {
         board.isMated -> board.sideToMove.flip()
@@ -81,45 +106,38 @@ fun fenAndMovesToBoardDomain(fen: String, moves: String) : Board {
         null -> SideColor.None
     }
 
-    val resultBoard = mutableMapOf<Cell, Piece>()
+    val boardMap = mutableMapOf<Cell, Piece>()
 
     for (square in Square.entries) {
         val libPiece = board.getPiece(square)
         if (libPiece != LibPiece.NONE) {
-            val cell = squareToCell(square)
-            val piece = convertPiece(libPiece)
-            resultBoard[cell] = piece
+            val cell = square.toCell()
+            val piece = libPiece.toDomainPiece()
+            boardMap[cell] = piece
         }
     }
 
-    val resultMoves = moves.toMapMoves()
-
-    return Board(board = resultBoard, side = color, possibleMoves = resultMoves, mate = mate, fen = fen)
+    return Board(board = boardMap, possibleMoves = moves.toMapMoves(), mate = mate, fen = this)
 }
 
-private fun squareToCell(square: Square): Cell {
-    val name = square.name
-    val column = name[0].lowercase()
-    val row = name[1].toString()
-    return Cell(row = row, column = column)
-}
+private fun Square.toCell() = Cell(row = this.name[1].toString(), column = this.name[0].lowercase())
 
-private fun convertPiece(libPiece: LibPiece): Piece {
-    val type = when (libPiece.pieceType) {
+private fun LibPiece.toDomainPiece() = this.let {
+    val type = when (this.pieceType) {
         LibPieceType.PAWN -> PieceType.Pawn
         LibPieceType.KNIGHT -> PieceType.Knight
         LibPieceType.BISHOP -> PieceType.Bishop
         LibPieceType.ROOK -> PieceType.Rook
         LibPieceType.QUEEN -> PieceType.Queen
         LibPieceType.KING -> PieceType.King
-        else -> throw IllegalArgumentException("Unknown piece type: ${libPiece.pieceType}")
+        else -> throw IllegalArgumentException("Unknown piece type: ${it.pieceType}")
     }
 
-    val color = when (libPiece.pieceSide) {
+    val color = when (this.pieceSide) {
         LibSide.WHITE -> SideColor.White
         LibSide.BLACK -> SideColor.Black
         else -> SideColor.None
     }
 
-    return Piece(type, color)
+    Piece(type, color)
 }

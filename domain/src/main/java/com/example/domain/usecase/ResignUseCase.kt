@@ -5,9 +5,8 @@ import com.example.domain.repository.GameRepository
 
 class ResignUseCase(private val gameRepository: GameRepository) {
     suspend fun execute() {
-        val board = gameRepository.currentGameFlow.value.board
-        gameRepository.updateCurrentBoard(board.copy(mate = board.side.opposite()))
         val player = gameRepository.currentGameFlow.value.player
-        gameRepository.updateCurrentPlayer(Player(player.name, player.wins, player.losses + 1))
+        gameRepository.updateCurrentBoard(gameRepository.currentGameFlow.value.board.copy(mate = player.side.opposite()))
+        gameRepository.updateCurrentPlayer(Player(player.name, player.wins, player.losses + 1, player.side))
     }
 }

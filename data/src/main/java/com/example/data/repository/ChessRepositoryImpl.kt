@@ -1,7 +1,7 @@
 package com.example.data.repository
 
 import com.example.data.api.ChessApi
-import com.example.data.mapper.fenAndMovesToBoardDomain
+import com.example.data.mapper.fenToBoardDomain
 import com.example.data.mapper.toUci
 import com.example.domain.models.Board
 import com.example.domain.models.Move
@@ -17,6 +17,8 @@ import javax.inject.Inject
 
 class ChessRepositoryImpl @Inject constructor(private val chessApi: ChessApi) : ChessRepository {
     override suspend fun makeMove(move: Move, board: Board): Board = withContext(Dispatchers.IO) {
+        if (board.isFinished()) return@withContext board
+
         val makeMovePlayerResponseBody =
             chessApi.postMakeMove(MakeMoveRequestBody(board.fen, move.toUci()))
         val bestMoveResponseBody =
@@ -30,10 +32,10 @@ class ChessRepositoryImpl @Inject constructor(private val chessApi: ChessApi) : 
             )
             val fen = makeBotMoveResponseBody.fen
             val moves = allPossibleMovesResponseBody.moves
-            return@withContext fenAndMovesToBoardDomain(fen = fen, moves = moves.joinToString(separator = "/"))
+            return@withContext fen.fenToBoardDomain(moves = moves.joinToString(separator = "/"))
         }
 
-        return@withContext fenAndMovesToBoardDomain(fen = makeMovePlayerResponseBody.fen, moves = "")
+        return@withContext makeMovePlayerResponseBody.fen.fenToBoardDomain(moves = "")
     }
 
     override fun getStartBoard(color: SideColor): Board {
