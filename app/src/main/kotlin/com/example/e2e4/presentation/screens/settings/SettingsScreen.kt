@@ -48,7 +48,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                 Switch(
                     checked = state.volume,
                     onCheckedChange = {
-                        viewModel.onIntent(SettingsIntent.SwitchVolume())
+                        viewModel.onIntent(SettingsIntent.SwitchVolume)
                     }
                 )
                 Icon(

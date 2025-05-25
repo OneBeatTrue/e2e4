@@ -114,6 +114,14 @@ class GameViewModel @Inject constructor(
                         Log.d("OBT", it.toString())
                         postSideEffect(GameSideEffect.ShowNotification("Ошибка сети"))
                     }
+                } else {
+                    reduce {
+                        state.copy(
+                            chosenRow = -1,
+                            chosenCol = -1,
+                            moves = emptyMap(),
+                        )
+                    }
                 }
             } else {
                 reduce {
@@ -213,7 +221,4 @@ class GameViewModel @Inject constructor(
         toRowMap[toColumn] = piece
         return updatedMap
     }
-
-
-//    private fun String.toIntOrDefault(default: Int = 0): Int = this.toIntOrNull() ?: default
 }
