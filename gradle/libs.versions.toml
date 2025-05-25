@@ -4,6 +4,7 @@ chesslib = "1.2.2"
 constraintlayoutCompose = "1.1.1.1"
 constraintlayoutComposeVersion = "1.1.1"
 
+kotlinxCoroutinesTest = "1.7.3"
 ksp = "2.1.20-2.0.0"
 hilt = "2.51.1"
 kotlin = "2.0.0"
@@ -14,6 +15,7 @@ espressoCore = "3.6.1"
 kotlinxCoroutinesCore = "1.7.3"
 
 ktor = "2.3.7"
+ktorClientCio = "2.3.4"
 ktorClientLogging = "2.3.4"
 ktorSerializationKotlinxJson = "2.3.3"
 lifecycleLivedataKtx = "2.9.0"
@@ -21,6 +23,10 @@ lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
 composeBom = "2025.05.00"
 lifecycleViewmodelKtx = "2.9.0"
+mockitoAndroid = "5.2.0"
+mockitoCore = "5.2.0"
+mockitoKotlin = "5.2.1"
+mockkAndroid = "1.13.10"
 navigationCompose = "2.9.0"
 appcompat = "1.7.0"
 material = "1.12.0"
@@ -28,6 +34,7 @@ orbit = "9.0.0"
 jetbrainsKotlinJvm = "2.0.0"
 
 roomRuntime = "2.7.1"
+turbine = "1.0.0"
 
 
 [libraries]
@@ -61,6 +68,8 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktorClientCio" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
@@ -68,10 +77,15 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroid" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
 orbit-compose = { module = "org.orbit-mvi:orbit-compose", version.ref = "orbit" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbit" }
 orbit-test = { module = "org.orbit-mvi:orbit-test", version.ref = "orbit" }
 orbit-viewmodel = { module = "org.orbit-mvi:orbit-viewmodel", version.ref = "orbit" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

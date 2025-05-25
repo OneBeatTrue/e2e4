@@ -5,24 +5,21 @@ plugins {
 //    id("com.google.dagger.hilt.android")
 }
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 kotlin {
     compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
+
 }
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
-}
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.junit)
 
-//dependencies {
-//    implementation(libs.hilt.android)
-//    kapt(libs.hilt.android.compiler)
-//}
-//
-//kapt {
-//    correctErrorTypes = true
-//}
+    testImplementation(libs.kotlinx.coroutines.test)
+}
