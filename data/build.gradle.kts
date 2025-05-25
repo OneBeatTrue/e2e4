@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.ktor.client.cio)
 
     // Room
     implementation(libs.androidx.room.runtime)

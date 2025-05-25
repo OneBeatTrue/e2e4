@@ -36,7 +36,6 @@ class GameRepositoryImplTest {
     fun `getPlayer returns Player if exists`() = runTest {
         whenever(userGeneralDao.getByName("test")).thenReturn(dummyEntity)
 
-        // При необходимости замокай toPlayerDomain()
         val result = repository.getPlayer(LoginPlayerParam("test"))
         assertNotEquals(Player.Empty, result)
     }
