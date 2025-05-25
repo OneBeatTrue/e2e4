@@ -23,7 +23,7 @@ class ChessRepositoryImpl @Inject constructor(private val chessApi: ChessApi) : 
             chessApi.postMakeMove(MakeMoveRequestBody(board.fen, move.toUci()))
         val bestMoveResponseBody =
             chessApi.postBestMove(BestMoveRequestBody(makeMovePlayerResponseBody.fen, 4))
-        if (bestMoveResponseBody.moves.isNotEmpty()) {
+        if (!bestMoveResponseBody.moves.isNullOrEmpty()) {
             val botMove = bestMoveResponseBody.moves.random() //.also { Log.d("MY_TAG", "${it}") }
             val makeBotMoveResponseBody =
                 chessApi.postMakeMove(MakeMoveRequestBody(makeMovePlayerResponseBody.fen, botMove))
@@ -31,8 +31,8 @@ class ChessRepositoryImpl @Inject constructor(private val chessApi: ChessApi) : 
                 AllPossibleMovesRequestBody(makeBotMoveResponseBody.fen)
             )
             val fen = makeBotMoveResponseBody.fen
-            val moves = allPossibleMovesResponseBody.moves
-            return@withContext fen.fenToBoardDomain(moves = moves.joinToString(separator = "/"))
+            val moves = if (allPossibleMovesResponseBody.moves != null) allPossibleMovesResponseBody.moves.joinToString(separator = "/") else ""
+            return@withContext fen.fenToBoardDomain(moves = moves)
         }
 
         return@withContext makeMovePlayerResponseBody.fen.fenToBoardDomain(moves = "")

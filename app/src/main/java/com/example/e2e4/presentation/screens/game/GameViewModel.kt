@@ -91,20 +91,29 @@ class GameViewModel @Inject constructor(
                     convertIntsToCell(row, col, state.isWhite)
                 )
                 if (state.possibleMoves[move.from]?.contains(move.to) == true) {
+                    val oldRow = state.chosenRow
+                    val oldCol = state.chosenCol
                     runCatching {
+                        reduce {
+                            state.copy(
+                                chosenRow = -1,
+                                chosenCol = -1,
+                                moves = emptyMap(),
+                                pieces = state.pieces.updateByMove(oldRow, oldCol, row, col)
+                            )
+                        }
                         makeMoveUseCase.execute(
                             move
                         )
                     }.onFailure {
+                        reduce {
+                            state.copy(
+                                pieces = state.pieces.updateByMove(row, col, oldRow, oldCol)
+                            )
+                        }
                         Log.d("OBT", it.toString())
-                        postSideEffect(GameSideEffect.ShowNotification("Ошибка сети")) }
-                }
-                reduce {
-                    state.copy(
-                        chosenRow = -1,
-                        chosenCol = -1,
-                        moves = emptyMap()
-                    )
+                        postSideEffect(GameSideEffect.ShowNotification("Ошибка сети"))
+                    }
                 }
             } else {
                 reduce {
@@ -190,6 +199,21 @@ class GameViewModel @Inject constructor(
 
         return result
     }
+
+    private fun Map<Int, Map<Int, Int>>.updateByMove(
+        fromRow: Int,
+        fromColumn: Int,
+        toRow: Int,
+        toColumn: Int,
+    ): Map<Int, Map<Int, Int>> {
+        val updatedMap = this.mapValues { it.value.toMutableMap() }.toMutableMap()
+        val piece = updatedMap[fromRow]?.get(fromColumn) ?: return this
+        updatedMap[fromRow]?.remove(fromColumn)
+        val toRowMap = updatedMap.getOrPut(toRow) { mutableMapOf() }
+        toRowMap[toColumn] = piece
+        return updatedMap
+    }
+
 
 //    private fun String.toIntOrDefault(default: Int = 0): Int = this.toIntOrNull() ?: default
 }
