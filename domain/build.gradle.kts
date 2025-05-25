@@ -16,13 +16,9 @@ kotlin {
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
-}
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.junit)
 
-//dependencies {
-//    implementation(libs.hilt.android)
-//    kapt(libs.hilt.android.compiler)
-//}
-//
-//kapt {
-//    correctErrorTypes = true
-//}
+    testImplementation(libs.kotlinx.coroutines.test)
+}

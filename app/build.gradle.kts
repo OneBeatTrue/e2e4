@@ -62,17 +62,11 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.constraintlayout.compose.v111)
     implementation(libs.kotlinx.coroutines.core)
-
-//    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-//    implementation(libs.androidx.lifecycle.livedata.ktx)
-
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
     implementation(libs.orbit.core)
-// or, if on Android:
     implementation(libs.orbit.viewmodel)
-// If using Jetpack Compose include
     implementation(libs.orbit.compose)
 
 // Tests
